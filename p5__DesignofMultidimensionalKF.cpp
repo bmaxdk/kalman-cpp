@@ -9,64 +9,37 @@ using namespace Eigen;
 
 float measurements[3] = { 1, 2, 3 };
 
-
-// tie(x, P) = kalman_filter(x, P, u, F, H, R, I);
 tuple<MatrixXf, MatrixXf> kalman_filter(MatrixXf x, MatrixXf P, MatrixXf u, MatrixXf F, MatrixXf H, MatrixXf R, MatrixXf I)
 {
     for (int n = 0; n < sizeof(measurements) / sizeof(measurements[0]); n++) {
         //****** TODO: Kalman-filter function********//
-        // cout << "hihihihihihi n= " << n << endl;
-        MatrixXf x_hat(F.rows(), x.cols());
-        MatrixXf P_hat(P.rows(), P.cols());
-        x_hat = F*x;
-        P_hat = F*P*F.transpose();
-        // cout << "x_hat= " << x_hat << endl;
-        // cout << "P_hat= " << P_hat << endl;
+        
         // Measurement Update
-        MatrixXf y(H.rows(), x_hat.cols());
-        MatrixXf z(H.rows(), x_hat.cols());
-        // z = measurements[n];
-        // cout << "measurements[n]= " << measurements[n] << endl;
-        // cout << "P_hat= " << P_hat << endl;
-        // y = measurements[n] - H*x_hat;
+        // Initialize and Compute Z, y, S, K, x, and P
 
-        y = - H*x_hat;
-        y = z - y;
-        // cout << "y= " << y << endl;
+        MatrixXf Z(1, 1);
+        Z << measurements[n];
+        
+        MatrixXf y(1,1);
+        y << Z - H * x;
 
         MatrixXf S(R.rows(), R.cols());
-        S = H*P_hat*H.transpose() + R;
+        S << H*P*H.transpose() + R;
 
+        // Calculation of Kalman Gain
+        MatrixXf K(P.rows(), S.cols());
+        K << P*H.transpose()*S.inverse();
 
-        // // Code the Measurement Update
-        // // MatrixXf P(2, 2);//Initial Uncertainty
-        // // P << 100, 0, 
-        // //     0, 100; 
-
-        MatrixXf K(P_hat.rows(), S.inverse().cols());
-        K = P_hat*H.transpose()*S.inverse();
-        x = x_hat + K*y;
-        MatrixXf Im;
-        Im.setIdentity(K.rows(), H.cols());
-        // P = Im - (K*H))*P_hat;
-        P = (Im - (K*H))*P_hat;
-
-        // // Initialize and Compute Z, y, S, K, x, and P
+        // Calculation of Posterior State and Covariance
+        x << x + K*y;
+        P = (I-K*H)*P;
         
         
-        
-        
-        
-        
-        
-        
-        // // Prediction
-        // // Code the Prediction
-        // // Compute x and P
-
-
-
-        
+        // State Prediction **
+        // Prediction
+        // Compute x and P for state prediction
+        x << F*x;
+        P << F*P*F.transpose();
         
     }
 
@@ -103,3 +76,9 @@ int main()
 
     return 0;
 }
+
+
+
+
+
+
