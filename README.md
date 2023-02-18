@@ -21,7 +21,7 @@ In order to use the library to do state estimation, a number of things have to b
 
 Navigate to your home directory and execute:
 
-```
+```bash
 $ git clone https://github.com/bmaxdk/kalman-cpp.git
 $ cd kalman-cpp
 $ g++ <cpp file name>.cpp -o <cpp file name>
